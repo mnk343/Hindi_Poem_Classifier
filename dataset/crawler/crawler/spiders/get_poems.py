@@ -10,7 +10,7 @@ class Get_Poems(scrapy.Spider):
 	# start_urls = ["https://kavitakosh.org/kk/%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A5%80%E0%A4%95%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A3_%E0%A4%B8%E0%A4%B0%E0%A4%B2"]
 	# start_urls = ["https://kavitakosh.org/kk/%E0%A4%B5%E0%A4%A4%E0%A4%A8_%E0%A4%B9%E0%A4%AE%E0%A4%BE%E0%A4%B0%E0%A4%BE_/_%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A5%80%E0%A4%95%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A3_%E0%A4%B8%E0%A4%B0%E0%A4%B2"]
 	# start_urls = ["https://kavitakosh.org/kk/%E0%A4%95%E0%A4%BE%E0%A4%81%E0%A4%9F%E0%A5%87_%E0%A4%85%E0%A4%A8%E0%A4%BF%E0%A4%AF%E0%A4%BE%E0%A4%B0%E0%A5%87_%E0%A4%B2%E0%A4%BF%E0%A4%96%E0%A4%A4%E0%A4%BE_%E0%A4%B9%E0%A5%82%E0%A4%81_/_%E0%A4%B6%E0%A5%8D%E0%A4%B0%E0%A5%80%E0%A4%95%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A3_%E0%A4%B8%E0%A4%B0%E0%A4%B2"]
-	def parse123(self, response):
+	def parse(self, response):
 		authors = response.css("div.poet-list-section")
 		file = open('dataset.csv', mode='w')
 		poem_writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -20,23 +20,25 @@ class Get_Poems(scrapy.Spider):
 			complete_link = "https://kavitakosh.org" + author_link
 			yield scrapy.Request(complete_link, self.parse_authors)
 
-	def parse(self, response):
-		author_info = response.css('div.kkparichay-box li a::attr(href)').getall()
-		author_name = response.css('span#kkparichay-name::text').get()
-		author_date = response.css('div.kkparichay-box table.wikitable td::text')[0].get().split()[-1]
-		author_name = author_name.strip()
-		self.author_name_to_era[author_name] = author_date
+	def parse_authors(self, response):
+		does_author_info_exist = response.css('div.kkparichay-box').get()
+		if does_author_info_exist is not None:
+			author_info = response.css('div.kkparichay-box li a::attr(href)').getall()
+			author_name = response.css('span#kkparichay-name::text').get()
+			author_date = response.css('div.kkparichay-box table.wikitable td::text')[0].get().split()[-1]
+			author_name = author_name.strip()
+			self.author_name_to_era[author_name] = author_date
 
-		with open("yoyo.txt", 'a') as file:
-			file.write(" hello ")
-			file.write(author_name + "~" + author_date +"\n")
-		
-		poem_of_author_links = response.css('li a::attr(href)').getall()
-		for poem_link in poem_of_author_links:
-			complete_link = "https://kavitakosh.org" + poem_link
-			with open("crawled.txt", 'a') as file:
-				file.write(complete_link +"\n")
-			yield scrapy.Request(complete_link, self.parse_poems)
+			# with open("yoyo.txt", 'a') as file:
+				# file.write(" hello ")
+				# file.write(author_name + "~" + author_date +"\n")
+			
+			poem_of_author_links = response.css('li a::attr(href)').getall()
+			for poem_link in poem_of_author_links:
+				complete_link = "https://kavitakosh.org" + poem_link
+				# with open("crawled.txt", 'a') as file:
+					# file.write(complete_link +"\n")
+				yield scrapy.Request(complete_link, self.parse_poems)
 
 	def parse_poems(self, response):
 		author_poem = response.css('h1.firstHeading span::text').get()
