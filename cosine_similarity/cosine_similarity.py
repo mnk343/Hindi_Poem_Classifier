@@ -13,8 +13,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 vectorizer = TfidfVectorizer() 
 
+train_input_file = input("Enter training file name: ")
+test_input_file = input("Enter test file name: ")
+
 # Used to load the TfIdf vectors 
-with open("train_data_tfidf","rb") as f:
+with open(train_input_file,"rb") as f:
     train_data = pickle.load(f)
 
 train_data_vectors = []
@@ -34,7 +37,7 @@ for element in train_data:
 	train_data_vectors.append(poem_vector)
 	poem_index = poem_index + 1
 
-with open("test_data_tfidf","rb") as f:
+with open(test_input_file,"rb") as f:
     test_data = pickle.load(f)
 
 correct_poem_eras_detected = 0
