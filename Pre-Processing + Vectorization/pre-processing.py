@@ -12,7 +12,7 @@ from inltk.inltk import tokenize
 
 poems_data_path = './poems_data_merged.csv'
 # 3 files for stopwords, decide later which one gives better results
-stop_words_path = './stopwords1.txt'
+stop_words_path = './Stopwords/stopwords1.txt'
 
 poems_data = open(poems_data_path,'r')
 stop_words_file = open(stop_words_path,'r')
